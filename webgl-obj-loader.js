@@ -93,7 +93,7 @@ var fs = require('fs');
      */
 
     var objectData = fs.readFileSync(objPath, {encoding: 'utf8'});
-    var path = objPath.split('/').slice(0, -1).join('/');
+    var path = objPath.split('/').slice(0, -1).join('/') + '/';
 
     var verts = [], vertNormals = [], textures = [], unpacked = {};
     // unpacking stuff
