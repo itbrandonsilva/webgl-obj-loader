@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 (function (scope, undefined) {
   'use strict';
 
@@ -20,7 +22,7 @@
    *
    * @param {String} objectData a string representation of an OBJ file with newlines preserved.
    */
-  OBJ.Mesh = function (objectData) {
+  OBJ.Mesh = function (objPath) {
     /*
      The OBJ file format does a sort of compression when saving a model in a
      program like Blender. There are at least 3 sections (4 including textures)
@@ -89,6 +91,10 @@
      exists in the hashindices object, its corresponding value is the index of
      that group and is appended to the unpacked indices array.
      */
+
+    var objectData = fs.readFileSync(objPath, {encoding: 'utf8'});
+    var path = objPath.split('/').slice(0, -1).join('/');
+
     var verts = [], vertNormals = [], textures = [], unpacked = {};
     // unpacking stuff
     unpacked.verts = [];
@@ -104,6 +110,7 @@
     var NORMAL_RE = /^vn\s/;
     var TEXTURE_RE = /^vt\s/;
     var FACE_RE = /^f\s/;
+    var MTLLIB_RE = /^mtllib\s/;
     var WHITESPACE_RE = /\s+/;
 
     for (var i = 0; i < lines.length; i++) {
@@ -120,6 +127,13 @@
       } else if (TEXTURE_RE.test(line)) {
         // if this is a texture
         textures.push.apply(textures, elements);
+      } else if (MTLLIB_RE.test(line)) {
+        var mtllib = fs.readFileSync(path + elements[0], {encoding: 'utf8'});
+        mtllib.split('\n').forEach(s => {
+            s = s.trim();
+            this.images = this.images || {};
+            if (/map_Kd/.test(s)) this.images.map_Kd = path + s.split(' ')[1];
+        });
       } else if (FACE_RE.test(line)) {
         // if this is a face
         /*
