@@ -132,7 +132,7 @@ var fs = require('fs');
         mtllib.split('\n').forEach(s => {
             s = s.trim();
             this.images = this.images || {};
-            if (/map_Kd/.test(s)) this.images.map_Kd = path + s.split(' ')[1];
+            if (/map_Kd/.test(s)) this.images.map_Kd = path + s.split(' ').slice(1).join(' ');
         });
       } else if (FACE_RE.test(line)) {
         // if this is a face
